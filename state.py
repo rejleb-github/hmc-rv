@@ -15,12 +15,6 @@ class State(object):
         self.Nvars = 0
         self.hillRadiusMax = 0.0
         self.hillRadiusFactor = 1.
-        self.collisionGhostParams = None
-        #These variables are used to track the planets in troubleshooting. Kept here for convenience. 
-        self.planet1x = []
-        self.planet1y = []
-        self.planet2x = []
-        self.planet2y = []
 
         self.ignore_vars = ignore_vars
         self.ignore_params = ignore_params
@@ -47,15 +41,6 @@ class State(object):
         sim.move_to_com()
         sim.exit_min_distance = self.hillRadiusFactor * self.hillRadiusMax
         return sim
-
-    '''
-    This function is called when troubleshooting. The following statement are called between integration steps.
-    '''
-    def check_ts(self, sim):
-        self.planet1x.append(sim.contents.particles[1].x)
-        self.planet1y.append(sim.contents.particles[1].y)
-        self.planet2x.append(sim.contents.particles[2].x)
-        self.planet2y.append(sim.contents.particles[2].y)
            
     '''
     This returns the rv of the system given an array of times. The troubleshooting variables+check_ts are initialized and ran here.
@@ -110,35 +95,7 @@ class State(object):
         if self.logp is None:
             self.logp = -self.get_chi2(obs)
         return self.logp + softlnpri
-    
-    '''
-    This is the lnprior function used with the emcee package and can be passed as an argument. May be moved to MCMC class in later updates.
-    '''
-    def lnprior(theta):
-        m, a, h, k, l = theta
-        if (1e-7 < m < 0.1) and (1e-2 < a < 500.0) and ((h**2 + k**2) < 1.0) and (-2*np.pi < l < 2*np.pi):
-            return 0.0
-        return -np.inf
 
-    '''
-    Used in MH algorithm to generate proposals.
-    '''
-    def shift_params(self, vec):
-        self.logp = None
-        if len(vec)!=self.Nvars:
-            raise AttributeError("vector has wrong length")
-        varindex = 0
-        for i, planet in enumerate(self.planets):
-            for k in planet.keys():
-                if k not in self.ignore_vars:
-                    if(self.ignore_params != None):
-                        if (k not in self.ignore_vars) and (k not in self.ignore_params[i]):
-                            self.planets[i][k] += vec[varindex]
-                            varindex += 1
-                    elif(k not in self.ignore_vars):
-                        self.planets[i][k] += vec[varindex]
-                        varindex += 1
-   
     '''
     Returns the parameters of a state.
     '''

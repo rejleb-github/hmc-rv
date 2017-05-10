@@ -48,22 +48,3 @@ class FakeObservation(Observation):
         self.t = np.concatenate((self.tb, self.tf), axis=0)
         self.rv = np.concatenate((self.rvb, self.rvf), axis=0)
         self.err = np.concatenate((self.errorb, self.errorf), axis=0)
-
-class Observation_FromFile(Observation):
-    def __init__(self, filename='yourfile.txt', Npoints=30):
-        """
-            Load observations from a .vels or .txt file. 
-        """
-        readtimes = np.genfromtxt(filename,usecols=(0),delimiter=' ',dtype='d')
-        readrvs = np.genfromtxt(filename,usecols=(1),delimiter=' ',dtype='d')
-        readerrors = np.genfromtxt(filename,usecols=(2),delimiter=' ',dtype='d')
-        readb, readf = np.array_split(readtimes*0.01720,2)
-        shift = readb[len(readb)-1]
-        self.Npoints = Npoints
-        self.tf = readf - shift
-        self.tb = readb - shift
-        self.rvb, self.rvf = np.array_split(readrvs*3.355e-5,2)
-        self.errorb, self.errorf = np.array_split(readerrors*3.355e-5,2)
-        self.t = np.concatenate((self.tb, self.tf), axis=0)
-        self.rv = np.concatenate((self.rvb, self.rvf), axis=0)
-        self.err = np.concatenate((self.errorb, self.errorf), axis=0)
