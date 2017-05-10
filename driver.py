@@ -5,8 +5,8 @@ import state
 import mcmc
 import numpy as np
 
-def run_hmc(Niter, true_state, obs, delt, L):
-    hmc = mcmc.Hmc(true_state, obs, delt, L)
+def run_hmc(Niter, true_state, obs, delt, L, mass):
+    hmc = mcmc.Hmc(true_state, obs, delt, L, mass)
     chain = np.zeros((0,hmc.state.Nvars))
     chainlogp = np.zeros(0)
     tries = 0
